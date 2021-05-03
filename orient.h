@@ -17,13 +17,14 @@ public:
 	void solve();
 
 	// for computing unknown points
+	void pix2cam(vector<vector<double>>& _conjugate_point);
 	vector<Vector3d> compute(const vector<vector<double>>& conjugate_points);
-
+	vector<double> forward_intersection(const vector<vector<double>>& conjugate_points, vector<Vector3d>& points);
 private:
 	void inner_orient();
-	double relative_orient(unsigned int max_iteration = 20, double eps = 1e-8);
-	double absolute_orient(unsigned int max_iteration = 20, double eps = 1e-8);
-	vector<double> forward_intersection(const vector<vector<double>>& conjugate_points, vector<Vector3d>& points);
+	double relative_orient(unsigned int max_iteration = 30, double eps = 1e-10);
+	double absolute_orient(unsigned int max_iteration = 30, double eps = 1e-10);
+	
 
 
 	// camera parameters
@@ -34,7 +35,7 @@ private:
 	double origY = 12863.5;
 
 	double f = 0.092;
-	double base_line = 500;
+	double base_line = 480;
 	vector<vector<double>> _conjugate_point, _GCPs;// xl,yl,xr,yr,X,Y,Z
 
 	// relative element

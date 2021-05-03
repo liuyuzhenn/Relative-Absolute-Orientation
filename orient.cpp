@@ -50,6 +50,20 @@ vector<Vector3d> RAOrient::compute(const vector<vector<double>>& conjugates) {
 }
 
 
+void RAOrient::pix2cam(vector<vector<double>>& _conjugate_point) {
+	double oX = width - origX;
+	double oY = height - origY;
+
+	for (size_t i = 0; i < _conjugate_point.size(); i++) {
+		vector<double> conjugate = _conjugate_point[i];
+		_conjugate_point[i][0] = (conjugate[0] - oX) * pix_size;
+		_conjugate_point[i][1] = -(conjugate[1] - oY) * pix_size;
+		_conjugate_point[i][2] = (conjugate[2] - oX) * pix_size;
+		_conjugate_point[i][3] = -(conjugate[3] - oY) * pix_size;
+	}
+}
+
+
 vector<double> RAOrient::forward_intersection(
 	const vector<vector<double>>& conjugates, 
 	vector<Vector3d>& points) {
@@ -85,7 +99,6 @@ vector<double> RAOrient::forward_intersection(
 		q.push_back(N1 * Y1 - N2 * Y2);
 		points.push_back(Vector3d(x, y, z));
 
-		//std::cout << x << "," << y << "," << z << "\n";
 	}
 
 	return q;
@@ -152,13 +165,13 @@ double RAOrient::relative_orient(unsigned int max_iteration, double eps) {
 			double X1 = P1[0], Y1 = P1[1], Z1 = P1[2];
 			double X2 = P2[0], Y2 = P2[1], Z2 = P2[2];
 
-			B(i, 0) = - Y2 * X1;
-			B(i, 1) = X1 * Z2;
-			B(i, 2) = X2 * Y1;
-			B(i, 3) = Y1 * Y2 - f * Z1;
-			B(i, 4) = -X2 * Z1;
+			B(i, 0) = - base_line * Y2 * X1;
+			B(i, 1) = base_line * X1 * Z2;
+			B(i, 2) = base_line * X2 * Y1;
+			B(i, 3) = base_line * (Y1 * Y2 - f * Z1);
+			B(i, 4) = - base_line * X2 * Z1;
 
-			L(i, 0) = -(Y1 * Z2 - Y2 * Z1);
+			L(i, 0) = - base_line * (Y1 * Z2 - Y2 * Z1);
 		}
 
 		Matrix<double, Dynamic, Dynamic> x = (B.transpose() * B).inverse() * (B.transpose() * L);
